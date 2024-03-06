@@ -1,188 +1,37 @@
-class LinkedList:
-
-    def __init__(self, collection=None):
-        self.head = None
-        if collection:
-            for item in reversed(collection): # [a,b,c] => [a] -> [b] -> [c] -> None
-                self.insert(item)
-
-
-    def __iter__(self):
-
-        def value_generator():
-
-            current = self.head
-
-            while current:
-
-                yield current.value
-
-                current = current.next
-
-        return value_generator()
-
-    def __str__(self):
-
-        out = ""
-
-        for value in self:
-            out += f"[ {value} ] -> "
-
-        return out + "None"
-
-    def __len__(self):
-        # DANGER: not O(1) - better IRL to track a self.length
-        return len(list(iter(self)))
-
-    def __eq__(self, other):
-        # consider https://docs.python.org/3/library/functools.html#functools.total_ordering for Data collections
-        return list(self) == list(other)
-
-    def __getitem__(self, index):
-
-        # return list(self)[index]
-
-        # IF you have an efficient way to track length then check here
-        # if len(self):
-        #     raise IndexError
-
-        if index < 0:
-            raise IndexError
-
-        for i, item in enumerate(self):
-            if i == index:
-                return item
-
-        raise IndexError
-
-
-    def insert(self, value):
-        self.head = Node(value, self.head)
-
-    def append(self, value):
-
-        node = Node(value)
-
-        if not self.head:
-            self.head = node
-            return
-
-        current = self.head
-
-        while current.next:
-            current = current.next
-
-        current.next = node
+import time
 
 class Node:
-    def __init__(self, value, next_ = None):
+    def __init__(self, value):
         self.value = value
-        self.next = next_
+        self.left = None
+        self.right = None
 
+class BinaryTree:
+    def __init__(self, root=None):
+        self.root = root
 
-if __name__ == "__main__":
+    def __iter__(self):
+        def inorder_traversal(node):
+            if node:
+                yield from inorder_traversal(node.left)
+                yield node.value
+                yield from inorder_traversal(node.right)
 
-    foods = LinkedList(["apple","banana","cucumber"])
+        return inorder_traversal(self.root)
 
-    first_food = foods[0]
+    def __str__(self):
+        return str(list(self))
 
-    for food in foods:
-        print(food)
+    def to_list(self):
+        return list(self)
 
-    def gen():
-        i = 0
-        while True:
-            yield i
-            i += 1
+    def __repr__(self):
+            return f"BinaryTree(Node({self.root.value}))" if self.root else "BinaryTree()"
 
+    def __eq__(self, other):
+        if not isinstance(other, BinaryTree):
+            return False
+        return list(self) == list(other)
 
-    num_gtr = gen()
-
-    for i in range(100):
-        print(next(num_gtr))
-
-    # print(num_gtr)
-
-    # try:
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    #     print(next(num_gtr))
-    # except StopIteration:
-    #     print('all done')
-        
-
-
-  from functools import wraps
-from time import sleep
-
-def emphasize(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-
-        return_val_from_undecorated_function = func(*args, **kwargs)
-
-        emphasized = return_val_from_undecorated_function.upper() + "!!!"
-
-        return emphasized
-
-    return wrapper
-
-def sarcastic_decorator(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        orig_val = func(*args, **kwargs)
-        return f'Oh Sure, "{orig_val}" sounds like a "great" idea'
-
-    return wrapper
-
-
-def proclaim(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        orig_val = func(*args, **kwargs)
-        return "On this day I do say, " + orig_val
-
-    return wrapper
-
-def procrastinate(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        sleep(3)
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
-@procrastinate
-@proclaim
-def say(txt):
-    return txt
-
-@sarcastic_decorator
-@emphasize
-def restaurant_suggestion(cuisine):
-    return cuisine
-
-if __name__ == "__main__":
-    print(say('spam goes best with eggs.'))
+    def __bool__(self):
+        return bool(self.root)
